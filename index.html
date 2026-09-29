@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>OPS CONTROL</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Inter,Arial,sans-serif;background:#f5f7fb;color:#111827}
+button,input,select,textarea{font:inherit}.hidden{display:none!important}.app{display:grid;grid-template-columns:180px 1fr;min-height:100vh}
+aside{background:#111c2e;color:#fff;padding:18px 12px}.brand{font-weight:900}.sub{font-size:10px;letter-spacing:.14em;color:#a9b5c7;margin:4px 0 26px}
+nav button{display:block;width:100%;text-align:left;background:none;color:#e5edf8;border:0;padding:11px;border-radius:8px;margin:3px 0;cursor:pointer}
+nav button.active,nav button:hover{background:#233148}.logout{margin-top:24px;color:#fecaca!important}
+main{padding:24px;max-width:1500px}.top{display:flex;justify-content:space-between;gap:15px;align-items:center;margin-bottom:18px}
+h1{font-size:22px;margin:0}.muted{color:#64748b;font-size:13px}.who{text-align:right;font-size:12px}
+.cards{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:15px 0}.card,.panel{background:#fff;border:1px solid #e1e7ef;border-radius:12px;padding:15px}
+.card b{font-size:24px;display:block;margin-top:5px}.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:14px 0}
+input,select,textarea{border:1px solid #d6deea;border-radius:8px;padding:9px;background:#fff}textarea{min-height:90px;width:100%;resize:vertical}
+.btn{border:1px solid #d6deea;background:#fff;border-radius:8px;padding:9px 12px;cursor:pointer}.primary{background:#2563eb;color:#fff;border-color:#2563eb}.danger{color:#b91c1c}
+table{width:100%;border-collapse:collapse;background:#fff;border:1px solid #e1e7ef}th,td{text-align:left;padding:10px;border-bottom:1px solid #e8edf4;font-size:13px}th{font-size:11px;color:#64748b;text-transform:uppercase}
+.badge{display:inline-block;padding:4px 7px;border-radius:999px;background:#eef2ff;font-size:11px}.overdue{color:#b91c1c;font-weight:700}
+.modal{position:fixed;inset:0;background:#0f172a80;display:grid;place-items:center;padding:20px;z-index:50}.modalbox{background:#fff;width:min(760px,100%);max-height:92vh;overflow:auto;border-radius:14px;padding:20px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field label{display:block;font-size:11px;font-weight:800;color:#64748b;margin-bottom:5px}.field.full{grid-column:1/-1}
+.timeline{border-left:2px solid #dbe4ef;margin:10px 0 0 8px}.update{padding:0 0 14px 14px}.update b{font-size:13px}.update small{display:block;color:#64748b;margin:2px 0 5px}
+.auth{position:fixed;inset:0;background:#f3f6fa;display:grid;place-items:center;z-index:100}.authbox{width:min(420px,94vw);background:#fff;padding:28px;border:1px solid #e1e7ef;border-radius:16px}
+.authbox input{width:100%;margin:5px 0 12px}.error{color:#b91c1c;font-size:12px;min-height:18px}
+.teamform{display:grid;grid-template-columns:1fr 1fr;gap:10px}.teamform .full{grid-column:1/-1}
+.calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}.day{background:#fff;border:1px solid #e1e7ef;min-height:110px;padding:7px;border-radius:7px}.day .n{font-weight:800}.evt{font-size:10px;padding:4px;background:#eef2ff;border-radius:5px;margin-top:4px;cursor:pointer}
+.report{white-space:pre-wrap;background:#0f172a;color:#e5e7eb;padding:16px;border-radius:10px;min-height:180px}
+@media(max-width:850px){.app{grid-template-columns:1fr}aside{position:static}nav{display:flex;overflow:auto}.cards{grid-template-columns:1fr 1fr}.grid2,.teamform{grid-template-columns:1fr}.teamform .full{grid-column:auto}.calgrid{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div id="auth" class="auth"><form id="login" class="authbox"><h2>Operations Dashboard</h2><p class="muted">Sign in with credentials created by your administrator.</p><label>Email</label><input id="email" type="email" required><label>Password</label><input id="password" type="password" required><div id="loginErr" class="error"></div><button class="btn primary" style="width:100%">Sign In</button></form></div>
+<div id="shell" class="app hidden">
+<aside><div class="brand">OPS CONTROL</div><div class="sub">OPERATIONS DASHBOARD</div><nav>
+<button data-v="board" class="active">▦ Task Board</button><button data-v="calendar">▣ Calendar</button><button data-v="all">☷ All Tasks</button><button data-v="reports">▤ Reports</button><button id="teamNav" data-v="team" class="hidden">♟ Manage Team</button><button id="logout" class="logout">↳ Sign Out</button>
+</nav></aside>
+<main>
+<div class="top"><div><h1 id="title">Task Board</h1><div class="muted">Track work from request to final confirmation.</div></div><div id="who" class="who"></div></div>
+<section id="board" class="view">
+<div class="toolbar"><select id="deptFilter"></select><button id="newTask" class="btn primary">+ New Task</button></div>
+<div class="cards"><div class="card">Active<b id="kActive">0</b></div><div class="card">New<b id="kNew">0</b></div><div class="card">In Progress<b id="kProg">0</b></div><div class="card">Final Confirmation<b id="kFinal">0</b></div><div class="card">Overdue<b id="kOver">0</b></div></div>
+<div id="boardTable"></div></section>
+<section id="calendar" class="view hidden"><div class="toolbar"><select id="calDept"></select><button id="prevMonth" class="btn">←</button><b id="monthLabel"></b><button id="nextMonth" class="btn">→</button></div><div id="cal" class="calgrid"></div></section>
+<section id="all" class="view hidden"><div class="toolbar"><select id="allDept"></select><input id="search" placeholder="Search tasks..."></div><div id="allTable"></div></section>
+<section id="reports" class="view hidden"><div class="toolbar"><select id="reportDept"></select><input id="from" type="date"><input id="to" type="date"><button id="makeReport" class="btn">Generate Factual Report</button><button id="aiReport" class="btn primary">Generate Gemini Report</button></div><div id="report" class="report">Select a date range and generate a report.</div></section>
+<section id="team" class="view hidden"><div class="panel"><h3>Create Team Member</h3><form id="teamForm" class="teamform">
+<div class="field"><label>Full Name</label><input id="tName" required></div><div class="field"><label>Email</label><input id="tEmail" type="email" required></div>
+<div class="field"><label>Temporary Password</label><input id="tPass" type="password" minlength="8" required></div><div class="field"><label>Department</label><select id="tDept"></select></div>
+<div class="field"><label>Role</label><select id="tRole"><option value="team_member">Team Member</option><option value="manager">Manager</option><option value="admin">Admin</option></select></div>
+<div class="field" style="align-self:end"><button class="btn primary">Add Team Member</button></div><div id="teamMsg" class="muted full"></div></form></div>
+<div class="panel" style="margin-top:12px"><h3>Team Members</h3><div id="teamTable"></div></div></section>
+</main></div>
+
+<div id="taskModal" class="modal hidden"><div class="modalbox"><div class="top"><h2 id="modalTitle">Task</h2><button id="closeModal" class="btn">✕</button></div>
+<form id="taskForm" class="grid2"><input id="taskId" type="hidden">
+<div class="field full"><label>Task</label><input id="taskTitle" required style="width:100%"></div>
+<div class="field"><label>Department</label><select id="taskDept"></select></div><div class="field"><label>Assigned To</label><select id="assignee"></select></div>
+<div class="field"><label>Priority</label><select id="priority"><option>High</option><option selected>Medium</option><option>Low</option></select></div>
+<div class="field"><label>Status</label><select id="status"><option>New Task</option><option>In Progress</option><option>Final Confirmation</option><option>Finished</option></select></div>
+<div class="field"><label>Property</label><input id="property"></div><div class="field"><label>Deadline</label><input id="deadline" type="datetime-local"></div>
+<div class="field full"><label>Description</label><textarea id="description"></textarea></div>
+<div class="field full"><button class="btn primary">Save Task</button> <button type="button" id="deleteTask" class="btn danger hidden">Delete</button></div></form>
+<div id="updatesBox" class="hidden"><hr><h3>Updates</h3><div id="timeline" class="timeline"></div><form id="updateForm"><textarea id="updateBody" placeholder="Add an update..." required></textarea><button class="btn primary">Post Update</button></form></div>
+</div></div>
+
+<script>
+const D=['Bathroom Cleaning','Room Deep Cleaning','Maintenance','Developer Pipeline','Reception','Other'], S=['New Task','In Progress','Final Confirmation','Finished'];
+const $=id=>document.getElementById(id), sb=window.opsSupabase.client; let me=null,tasks=[],team=[],month=new Date();
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const dt=v=>v?new Date(v).toLocaleString():'—', isoLocal=v=>v?new Date(v).toISOString().slice(0,16):'';
+function fillDept(id,all=true){$(id).innerHTML=(all?'<option value="">All Departments</option>':'')+D.map(x=>`<option>${x}</option>`).join('')}
+['deptFilter','calDept','allDept','reportDept'].forEach(x=>fillDept(x,true));['tDept','taskDept'].forEach(x=>fillDept(x,false));
+async function boot(){const {data:{session}}=await sb.auth.getSession();if(!session)return;await enter(session.user)}
+async function enter(user){const {data,error}=await sb.from('profiles').select('*').eq('id',user.id).single();if(error||!data?.is_active){await sb.auth.signOut();return}
+ me={...data,auth_email:user.email};$('auth').classList.add('hidden');$('shell').classList.remove('hidden');$('who').innerHTML=`<b>${esc(me.display_name)}</b><br>${esc(user.email)} · ${esc(me.role)}`;$('teamNav').classList.toggle('hidden',me.role!=='admin');await Promise.all([loadTeam(),loadTasks()]);subscribe()}
+$('login').onsubmit=async e=>{e.preventDefault();$('loginErr').textContent='';const {data,error}=await sb.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error)return $('loginErr').textContent=error.message;await enter(data.user)}
+$('logout').onclick=async()=>{await sb.auth.signOut();location.reload()}
+async function loadTeam(){const {data,error}=await sb.from('profiles').select('id,display_name,email,role,department,is_active').order('display_name');if(error)return console.error(error);team=data||[];renderAssignees();renderTeam()}
+function renderAssignees(){const active=team.filter(x=>x.is_active);$('assignee').innerHTML='<option value="">Unassigned</option>'+active.map(u=>`<option value="${u.id}">${esc(u.display_name)} — ${esc(u.email||'')}</option>`).join('')}
+async function loadTasks(){const {data,error}=await sb.from('tasks').select('*,assignee:profiles!tasks_assignee_id_fkey(id,display_name,email)').order('created_at',{ascending:false});if(error)return alert('Unable to load tasks: '+error.message);tasks=data||[];renderAll()}
+function filtered(dept,search=''){return tasks.filter(t=>(!dept||t.department===dept)&&(!search||JSON.stringify(t).toLowerCase().includes(search.toLowerCase())))}
+function table(list){return `<table><thead><tr><th>Task</th><th>Department</th><th>Assigned To</th><th>Status</th><th>Deadline</th><th>Latest</th></tr></thead><tbody>${list.map(t=>`<tr data-id="${t.id}" class="taskrow"><td><b>${esc(t.title)}</b><br><span class="muted">${esc(t.property||'')}</span></td><td>${esc(t.department)}</td><td>${t.assignee?esc(t.assignee.display_name)+'<br><span class="muted">'+esc(t.assignee.email||'')+'</span>':'Unassigned'}</td><td><span class="badge">${esc(t.status)}</span></td><td class="${t.deadline&&new Date(t.deadline)<new Date()&&t.status!=='Finished'?'overdue':''}">${dt(t.deadline)}</td><td>${dt(t.updated_at)}</td></tr>`).join('')}</tbody></table>`}
+function renderAll(){let b=filtered($('deptFilter').value);$('boardTable').innerHTML=table(b);$('allTable').innerHTML=table(filtered($('allDept').value,$('search').value));$('kActive').textContent=b.filter(x=>x.status!=='Finished').length;$('kNew').textContent=b.filter(x=>x.status==='New Task').length;$('kProg').textContent=b.filter(x=>x.status==='In Progress').length;$('kFinal').textContent=b.filter(x=>x.status==='Final Confirmation').length;$('kOver').textContent=b.filter(x=>x.status!=='Finished'&&x.deadline&&new Date(x.deadline)<new Date()).length;renderCalendar();document.querySelectorAll('.taskrow').forEach(r=>r.onclick=()=>openTask(r.dataset.id))}
+['deptFilter','allDept','calDept'].forEach(id=>$(id).onchange=renderAll);$('search').oninput=renderAll;
+$('newTask').onclick=()=>openTask();$('closeModal').onclick=()=>$('taskModal').classList.add('hidden');
+async function openTask(id){$('taskForm').reset();$('taskId').value=id||'';$('updatesBox').classList.toggle('hidden',!id);$('deleteTask').classList.toggle('hidden',!id||!['admin','manager'].includes(me.role));renderAssignees();
+ if(id){const t=tasks.find(x=>x.id===id);$('modalTitle').textContent=t.title;$('taskTitle').value=t.title;$('taskDept').value=t.department;$('assignee').value=t.assignee_id||'';$('priority').value=t.priority;$('status').value=t.status;$('property').value=t.property||'';$('deadline').value=isoLocal(t.deadline);$('description').value=t.description||'';await loadUpdates(id)}else $('modalTitle').textContent='New Task';$('taskModal').classList.remove('hidden')}
+$('taskForm').onsubmit=async e=>{e.preventDefault();const id=$('taskId').value,nowStatus=$('status').value,old=id?tasks.find(x=>x.id===id):null;
+ let row={title:$('taskTitle').value.trim(),department:$('taskDept').value,assignee_id:$('assignee').value||null,priority:$('priority').value,status:nowStatus,property:$('property').value.trim()||null,deadline:$('deadline').value?new Date($('deadline').value).toISOString():null,description:$('description').value.trim()||null};
+ if(!id){row.created_by=me.id;if(nowStatus==='In Progress')row.actual_start=new Date().toISOString();if(nowStatus==='Finished')row.completed_at=new Date().toISOString()}
+ else{if(old.status!=='In Progress'&&nowStatus==='In Progress'&&!old.actual_start)row.actual_start=new Date().toISOString();if(nowStatus==='Finished'&&!old.completed_at)row.completed_at=new Date().toISOString()}
+ const q=id?sb.from('tasks').update(row).eq('id',id):sb.from('tasks').insert(row);const {error}=await q;if(error)return alert('Task was not saved: '+error.message);$('taskModal').classList.add('hidden');await loadTasks()}
+$('deleteTask').onclick=async()=>{if(!confirm('Delete this task permanently?'))return;const {error}=await sb.from('tasks').delete().eq('id',$('taskId').value);if(error)return alert(error.message);$('taskModal').classList.add('hidden');await loadTasks()}
+async function loadUpdates(id){const {data,error}=await sb.from('task_updates').select('*,author:profiles!task_updates_created_by_fkey(display_name,email)').eq('task_id',id).order('created_at',{ascending:false});if(error)return console.error(error);$('timeline').innerHTML=(data||[]).map(u=>`<div class="update"><b>${esc(u.author?.display_name||'User')} — ${esc(u.author?.email||'')}</b><small>${dt(u.created_at)}</small>${esc(u.body)}</div>`).join('')||'<div class="update muted">No updates yet.</div>'}
+$('updateForm').onsubmit=async e=>{e.preventDefault();const body=$('updateBody').value.trim();if(!body)return;const {error}=await sb.from('task_updates').insert({task_id:$('taskId').value,body,created_by:me.id});if(error)return alert('Update failed: '+error.message);$('updateBody').value='';await loadUpdates($('taskId').value);await sb.from('tasks').update({updated_at:new Date().toISOString()}).eq('id',$('taskId').value);await loadTasks()}
+function renderTeam(){if(me?.role!=='admin')return;$('teamTable').innerHTML=`<table><thead><tr><th>Name</th><th>Email</th><th>Department</th><th>Role</th><th>Status</th><th></th></tr></thead><tbody>${team.map(u=>`<tr><td>${esc(u.display_name)}</td><td>${esc(u.email||'')}</td><td>${esc(u.department||'—')}</td><td>${esc(u.role)}</td><td>${u.is_active?'Active':'Inactive'}</td><td>${u.id===me.id?'':`<button class="btn toggleUser" data-id="${u.id}" data-active="${u.is_active}">${u.is_active?'Deactivate':'Activate'}</button>`}</td></tr>`).join('')}</tbody></table>`;document.querySelectorAll('.toggleUser').forEach(b=>b.onclick=async()=>{const {error}=await sb.functions.invoke('admin-users',{body:{action:'set_active',user_id:b.dataset.id,is_active:b.dataset.active!=='true'}});if(error)return alert(error.message);await loadTeam()})}
+$('teamForm').onsubmit=async e=>{e.preventDefault();$('teamMsg').textContent='Creating account…';const {data,error}=await sb.functions.invoke('admin-users',{body:{action:'create',display_name:$('tName').value.trim(),email:$('tEmail').value.trim(),password:$('tPass').value,department:$('tDept').value,role:$('tRole').value}});if(error){$('teamMsg').textContent='Failed: '+error.message;return}$('teamMsg').textContent='Account created. The team member can now sign in.';e.target.reset();await loadTeam()}
+function renderCalendar(){const y=month.getFullYear(),m=month.getMonth(),first=new Date(y,m,1),last=new Date(y,m+1,0);$('monthLabel').textContent=month.toLocaleString(undefined,{month:'long',year:'numeric'});let h='';for(let i=0;i<first.getDay();i++)h+='<div></div>';let list=filtered($('calDept').value);for(let d=1;d<=last.getDate();d++){let ev=list.filter(t=>t.deadline&&new Date(t.deadline).getFullYear()===y&&new Date(t.deadline).getMonth()===m&&new Date(t.deadline).getDate()===d);h+=`<div class="day"><div class="n">${d}</div>${ev.map(t=>`<div class="evt" data-id="${t.id}">${esc(t.title)}</div>`).join('')}</div>`}$('cal').innerHTML=h;document.querySelectorAll('.evt').forEach(x=>x.onclick=()=>openTask(x.dataset.id))}
+$('prevMonth').onclick=()=>{month=new Date(month.getFullYear(),month.getMonth()-1,1);renderCalendar()};$('nextMonth').onclick=()=>{month=new Date(month.getFullYear(),month.getMonth()+1,1);renderCalendar()}
+document.querySelectorAll('nav [data-v]').forEach(b=>b.onclick=()=>{document.querySelectorAll('.view').forEach(v=>v.classList.add('hidden'));$(b.dataset.v).classList.remove('hidden');document.querySelectorAll('nav [data-v]').forEach(x=>x.classList.remove('active'));b.classList.add('active');$('title').textContent=b.textContent.trim();if(b.dataset.v==='team')loadTeam()})
+$('makeReport').onclick=()=>{let a=$('from').value?new Date($('from').value):new Date(0),z=$('to').value?new Date($('to').value+'T23:59:59'):new Date(8640000000000000),list=filtered($('reportDept').value).filter(t=>new Date(t.created_at)>=a&&new Date(t.created_at)<=z);$('report').textContent=`OPERATIONS REPORT\nDepartment: ${$('reportDept').value||'All Departments'}\nPeriod: ${$('from').value||'All'} to ${$('to').value||'All'}\n\nTotal tasks: ${list.length}\nFinished: ${list.filter(x=>x.status==='Finished').length}\nIn progress: ${list.filter(x=>x.status==='In Progress').length}\nFinal confirmation: ${list.filter(x=>x.status==='Final Confirmation').length}\nOverdue: ${list.filter(x=>x.status!=='Finished'&&x.deadline&&new Date(x.deadline)<new Date()).length}\n\n`+list.map(x=>`• ${x.title} | ${x.department} | ${x.status} | ${x.assignee?.display_name||'Unassigned'} | deadline ${dt(x.deadline)}`).join('\n')}
+$('aiReport').onclick=async()=>{let factual=$('report').textContent;if(!factual||factual.startsWith('Select'))return alert('Generate the factual report first.');$('aiReport').disabled=true;const {data,error}=await sb.functions.invoke('generate-report',{body:{report:factual}});$('aiReport').disabled=false;if(error)return alert('Gemini report failed: '+error.message);$('report').textContent=factual+'\n\nAI MANAGEMENT SUMMARY\n'+data.report}
+function subscribe(){sb.channel('ops-live').on('postgres_changes',{event:'*',schema:'public',table:'tasks'},()=>loadTasks()).on('postgres_changes',{event:'*',schema:'public',table:'task_updates'},()=>{if($('taskId').value)loadUpdates($('taskId').value)}).on('postgres_changes',{event:'*',schema:'public',table:'profiles'},()=>loadTeam()).subscribe()}
+boot();
+</script></body></html>
