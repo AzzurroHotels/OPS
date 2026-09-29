@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Operations Control Dashboard</title>
+<style>
+:root{--bg:#f4f6f8;--panel:#fff;--text:#17202a;--muted:#697586;--line:#e5e9ef;--nav:#111827;--accent:#2563eb;--danger:#dc2626;--warn:#d97706;--ok:#059669;--purple:#7c3aed}
+*{box-sizing:border-box}body{margin:0;font:14px/1.45 Inter,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--text)}button,input,select,textarea{font:inherit}.app{display:grid;grid-template-columns:230px 1fr;min-height:100vh}.side{background:var(--nav);color:#fff;padding:22px 16px;position:sticky;top:0;height:100vh}.brand{font-weight:800;font-size:19px;margin:0 10px 28px}.brand small{display:block;color:#9ca3af;font-size:11px;letter-spacing:.08em;margin-top:3px}.nav button{width:100%;border:0;background:transparent;color:#cbd5e1;text-align:left;padding:11px 12px;border-radius:8px;margin:2px 0;cursor:pointer}.nav button.active,.nav button:hover{background:#1f2937;color:#fff}.userbox{position:absolute;bottom:18px;left:16px;right:16px;border-top:1px solid #374151;padding-top:14px}.userbox select{width:100%;padding:8px;border-radius:7px;background:#1f2937;color:white;border:1px solid #4b5563}.main{padding:24px 28px;min-width:0}.top{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:22px}.top h1{font-size:24px;margin:0}.top p{margin:4px 0 0;color:var(--muted)}.btn{border:1px solid var(--line);background:#fff;padding:9px 13px;border-radius:8px;cursor:pointer;font-weight:600}.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}.btn.danger{color:var(--danger)}.cards{display:grid;grid-template-columns:repeat(6,minmax(120px,1fr));gap:12px;margin-bottom:20px}.card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:15px}.card .n{font-size:26px;font-weight:800;margin-top:6px}.card .lab{color:var(--muted);font-size:12px}.toolbar{display:flex;gap:8px;flex-wrap:wrap;background:#fff;border:1px solid var(--line);padding:12px;border-radius:10px;margin-bottom:14px}.toolbar input,.toolbar select{border:1px solid var(--line);padding:9px;border-radius:7px;background:#fff}.toolbar input{min-width:230px;flex:1}.board{display:grid;grid-template-columns:repeat(4,minmax(230px,1fr));gap:12px;align-items:start;overflow:auto}.col{background:#edf0f4;border-radius:10px;padding:10px;min-height:300px}.colhead{display:flex;justify-content:space-between;align-items:center;font-weight:800;padding:4px 4px 10px}.count{background:#dce2ea;border-radius:20px;padding:2px 8px;font-size:12px}.task{background:#fff;border:1px solid var(--line);border-radius:9px;padding:12px;margin-bottom:9px;cursor:pointer;box-shadow:0 1px 2px #00000008}.task:hover{border-color:#cbd5e1}.task h3{font-size:14px;margin:0 0 7px}.meta{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}.pill{font-size:11px;padding:3px 7px;border-radius:20px;background:#eef2ff;color:#3949ab}.pill.high{background:#fef2f2;color:#b91c1c}.pill.medium{background:#fff7ed;color:#b45309}.pill.low{background:#ecfdf5;color:#047857}.latest{color:#5f6b7a;font-size:12px;border-top:1px solid var(--line);padding-top:8px;margin-top:8px}.deadline{font-size:11px;color:var(--muted);margin-top:8px}.overdue{color:var(--danger);font-weight:700}.empty{color:#8a94a3;text-align:center;padding:35px 5px;font-size:12px}.view{display:none}.view.active{display:block}.tablewrap{background:#fff;border:1px solid var(--line);border-radius:10px;overflow:auto}table{border-collapse:collapse;width:100%;min-width:800px}th,td{text-align:left;padding:11px;border-bottom:1px solid var(--line);vertical-align:top}th{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;background:#fafbfc}.reportbox{background:#fff;border:1px solid var(--line);border-radius:10px;padding:18px}.reportout{white-space:pre-wrap;background:#f8fafc;border:1px solid var(--line);border-radius:8px;padding:16px;min-height:220px;margin-top:15px}.modal{position:fixed;inset:0;background:#0008;display:none;align-items:center;justify-content:center;padding:20px;z-index:10}.modal.open{display:flex}.dialog{background:#fff;border-radius:12px;width:min(720px,100%);max-height:92vh;overflow:auto;padding:20px}.dialog.wide{width:min(900px,100%)}.dialoghead{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.dialoghead h2{margin:0;font-size:19px}.x{border:0;background:transparent;font-size:22px;cursor:pointer}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field label{display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:5px;text-transform:uppercase}.field input,.field select,.field textarea{width:100%;border:1px solid var(--line);border-radius:7px;padding:9px}.field textarea{min-height:82px;resize:vertical}.span2{grid-column:1/-1}.actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}.timeline{border-left:2px solid #e5e7eb;margin:12px 0 12px 7px;padding-left:17px}.event{position:relative;margin:0 0 17px}.event:before{content:"";width:8px;height:8px;background:#64748b;border-radius:50%;position:absolute;left:-22px;top:5px}.event b{font-size:12px}.event time{font-size:11px;color:var(--muted);margin-left:5px}.event p{margin:3px 0}.detailgrid{display:grid;grid-template-columns:1.4fr .8fr;gap:18px}.sideinfo{background:#f8fafc;border-radius:8px;padding:12px}.sideinfo div{margin-bottom:10px}.sideinfo small{display:block;color:var(--muted)}.updateform{display:flex;gap:8px}.updateform textarea{flex:1;border:1px solid var(--line);border-radius:7px;padding:9px;min-height:70px}.teamrow{display:flex;justify-content:space-between;align-items:center;padding:10px;border-bottom:1px solid var(--line)}.notice{font-size:12px;color:var(--muted);margin-top:10px}.ai-note{font-size:12px;color:var(--muted);margin-top:10px}.ai-ready{color:var(--ok);font-weight:700}.mobileNav{display:none}.calhead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}.calnav{display:flex;gap:7px;align-items:center}.calgrid{display:grid;grid-template-columns:repeat(7,1fr);background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden}.dow{padding:9px;text-align:center;font-size:11px;font-weight:800;color:var(--muted);background:#f8fafc;border-bottom:1px solid var(--line)}.calday{min-height:125px;padding:8px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:#fff}.calday:nth-child(7n){border-right:0}.calday.out{background:#fafbfc;color:#a3aab5}.calday.today{box-shadow:inset 0 0 0 2px var(--accent)}.daynum{font-weight:800;font-size:12px;margin-bottom:6px}.calevent{display:block;width:100%;text-align:left;border:0;border-radius:5px;padding:5px 6px;margin:4px 0;font-size:11px;cursor:pointer;background:#eef2ff;color:#27346b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.calevent.high{background:#fef2f2;color:#991b1b}.calevent.finished{background:#ecfdf5;color:#065f46}.todaypanel{margin-top:14px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:15px}.todaylist{display:grid;gap:8px}.todayitem{display:flex;justify-content:space-between;gap:12px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:10px;cursor:pointer}.todayitem:hover{border-color:#cbd5e1}@media(max-width:900px){.calday{min-height:95px;padding:5px}.calevent{font-size:10px}}
+@media(max-width:1100px){.cards{grid-template-columns:repeat(3,1fr)}.board{grid-template-columns:repeat(2,minmax(280px,1fr))}}
+@media(max-width:720px){.app{display:block}.side{height:auto;position:static;padding:12px}.brand{margin:0 0 10px}.nav{display:flex;overflow:auto}.nav button{white-space:nowrap;width:auto}.userbox{position:static;border:0;padding:8px 0 0}.main{padding:16px}.cards{grid-template-columns:repeat(2,1fr)}.board{grid-template-columns:1fr}.grid,.detailgrid{grid-template-columns:1fr}.span2{grid-column:auto}.top{align-items:flex-start}.top .btn{white-space:nowrap}}
+</style><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+
+<style>
+.auth-gate{position:fixed;inset:0;z-index:9999;background:#f4f7fb;display:flex;align-items:center;justify-content:center;padding:24px}
+.auth-card{width:min(440px,100%);background:#fff;border:1px solid #e5eaf0;border-radius:20px;padding:30px;box-shadow:0 18px 60px rgba(15,23,42,.12)}
+.auth-brand{display:flex;align-items:center;gap:12px;margin-bottom:22px}.auth-mark{width:44px;height:44px;border-radius:13px;background:#0f172a;color:#fff;display:grid;place-items:center;font-weight:900}
+.auth-card h1{font-size:24px;margin:0}.auth-card p{color:#64748b;margin:6px 0 22px}.auth-field{margin:13px 0}.auth-field label{display:block;font-size:12px;font-weight:800;margin-bottom:6px;color:#475569}
+.auth-field input{width:100%;box-sizing:border-box;padding:12px;border:1px solid #dbe2ea;border-radius:10px;font:inherit}.auth-error{font-size:13px;color:#b91c1c;min-height:18px;margin:10px 0}
+.team-admin-only{display:none}.team-grid{display:grid;grid-template-columns:1.1fr 2fr;gap:16px}.team-list{display:grid;gap:9px}.team-person{border:1px solid #e5eaf0;border-radius:12px;padding:12px}.team-person strong{display:block}.team-person small{color:#64748b}
+.role-pill{display:inline-block;font-size:11px;font-weight:800;padding:3px 7px;border-radius:999px;background:#eef2ff;margin-top:6px}
+@media(max-width:800px){.team-grid{grid-template-columns:1fr}}
+</style>
+</head><body>
+<div id="authGate" class="auth-gate">
+ <div class="auth-card">
+  <div class="auth-brand"><div class="auth-mark">OP</div><div><h1>Operations Dashboard</h1><p style="margin:2px 0 0">Team access</p></div></div>
+  <p>Sign in using the credentials provided by your administrator.</p>
+  <form id="loginForm">
+   <div class="auth-field"><label>Email</label><input id="loginEmail" type="email" autocomplete="username" required></div>
+   <div class="auth-field"><label>Password</label><input id="loginPassword" type="password" autocomplete="current-password" required></div>
+   <div id="loginError" class="auth-error"></div>
+   <button class="primary" type="submit" style="width:100%">Sign In</button>
+  </form>
+  <p style="font-size:12px;margin:18px 0 0">Accounts are created by an administrator. Public registration is disabled.</p>
+ </div>
+</div>
+
+<div class="app"><aside class="side"><div class="brand">OPS CONTROL<small>OPERATIONS DASHBOARD</small></div><div class="nav">
+<button class="active" data-view="boardView">▦ Task Board</button><button data-view="calendarView">▣ Calendar</button><button data-view="allView">☷ All Tasks</button><button data-view="reportsView">▤ Reports</button><button data-view="teamView">♙ Team</button><button data-view="backupView">⇩ Backup</button></div>
+<div class="userbox"><small>UPDATES POSTED AS</small><select id="currentUser"></select></div></aside>
+<main class="main"><div class="top"><div><h1 id="pageTitle">Operations Dashboard</h1><p id="subtitle">Track work from request to final confirmation.</p></div><button class="btn primary" id="newTaskBtn">+ New Task</button></div>
+<section id="boardView" class="view active"><div class="cards" id="cards"></div><div class="toolbar"><input id="search" placeholder="Search tasks, property, assignee…"><select id="boardDepartment"><option value="">All departments</option><option>Bathroom Cleaning</option><option>Room Deep Cleaning</option><option>Maintenance</option><option>Developer Pipeline</option><option>Reception</option><option>Other</option></select><select id="propertyFilter"><option value="">All properties</option></select><select id="priorityFilter"><option value="">All priorities</option><option>High</option><option>Medium</option><option>Low</option></select><select id="assigneeFilter"><option value="">All assignees</option></select></div><div class="board" id="board"></div></section>
+
+<section id="calendarView" class="view"><div class="toolbar" style="margin-bottom:14px"><b style="align-self:center;margin-right:4px">Department:</b><select id="calendarDepartment"><option value="">All departments</option><option>Bathroom Cleaning</option><option>Room Deep Cleaning</option><option>Maintenance</option><option>Developer Pipeline</option><option>Reception</option><option>Other</option></select></div><div class="calhead"><div><h2 id="calTitle" style="margin:0">Calendar</h2><div class="notice">Tasks appear on their deadline date. Click any task to open its full record.</div></div><div class="calnav"><button class="btn" id="calPrev">‹</button><button class="btn" id="calToday">Today</button><button class="btn" id="calNext">›</button></div></div><div class="calgrid" id="calendarGrid"></div><div class="todaypanel"><h3 id="dayScheduleTitle" style="margin-top:0">Today's Schedule</h3><div class="todaylist" id="todaySchedule"></div></div></section>
+<section id="allView" class="view"><div class="toolbar"><select id="allDepartment"><option value="">All departments</option><option>Bathroom Cleaning</option><option>Room Deep Cleaning</option><option>Maintenance</option><option>Developer Pipeline</option><option>Reception</option><option>Other</option></select></div><div class="tablewrap"><table><thead><tr><th>Task</th><th>Status</th><th>Assigned</th><th>Actual Start</th><th>Deadline</th><th>Latest Update</th></tr></thead><tbody id="taskRows"></tbody></table></div></section>
+<section id="reportsView" class="view"><div class="reportbox"><h2 style="margin-top:0">Operations Report Generator</h2><p style="color:var(--muted)">Build a factual report from your task records. Generate factual reports now. Gemini AI reporting is prepared for secure connection through Supabase.</p><div class="grid"><div class="field"><label>From</label><input type="date" id="reportFrom"></div><div class="field"><label>To</label><input type="date" id="reportTo"></div><div class="field"><label>Property</label><select id="reportProperty"><option value="">All properties</option></select></div><div class="field"><label>Department</label><select id="reportDepartment"><option value="">All departments</option><option>Bathroom Cleaning</option><option>Room Deep Cleaning</option><option>Maintenance</option><option>Developer Pipeline</option><option>Reception</option><option>Other</option></select></div><div class="field"><label>Report Type</label><select id="reportType"><option>Management Summary</option><option>Daily Operations</option><option>Weekly Operations</option><option>Outstanding & Overdue</option></select></div></div><div class="actions" style="justify-content:flex-start"><button class="btn primary" id="generateReport">Generate Factual Report</button><button class="btn" id="generateAIReport">Generate with Gemini</button><button class="btn" id="copyReport">Copy</button></div><div class="ai-note" id="aiStatus">Gemini-ready architecture: production AI requests will be routed through a Supabase Edge Function so the API key stays private.</div><div class="reportout" id="reportOut">Select a date range and generate a report.</div></div></section>
+<section id="teamView" class="view"><div class="reportbox"><h2 style="margin-top:0">Team Members</h2><div style="display:flex;gap:8px"><input id="teamName" placeholder="Team member name" style="flex:1;padding:9px;border:1px solid var(--line);border-radius:7px"><button class="btn primary" id="addTeam">Add Member</button></div><div id="teamList" style="margin-top:12px"></div></div></section>
+<section id="backupView" class="view"><div class="reportbox"><h2 style="margin-top:0">Local Backup</h2><p>Your front-end data is stored in this browser. Export a JSON backup regularly. Supabase synchronization will replace this local-only storage in the backend phase.</p><button class="btn primary" id="exportBtn">Export JSON Backup</button> <button class="btn" id="importBtn">Import JSON</button><input type="file" id="importFile" accept="application/json" hidden><div class="notice">Importing a backup replaces the current local task/team data after confirmation.</div></div></section>
+
+<section id="view-team" class="view team-admin-only" style="display:none">
+ <div class="section-head"><div><h2>Manage Team</h2><p>Create and control dashboard access. Only administrators can use this area.</p></div></div>
+ <div class="team-grid">
+  <div class="panel">
+   <h3>Create Team Member</h3>
+   <form id="createTeamForm">
+    <div class="auth-field"><label>Full Name</label><input id="teamName" required></div>
+    <div class="auth-field"><label>Email</label><input id="teamEmail" type="email" required></div>
+    <div class="auth-field"><label>Temporary Password</label><input id="teamPassword" type="password" minlength="8" required></div>
+    <div class="auth-field"><label>Role</label><select id="teamRole"><option value="team_member">Team Member</option><option value="manager">Manager</option><option value="admin">Admin</option></select></div>
+    <div class="auth-field"><label>Department</label><select id="teamDepartment"><option>Bathroom Cleaning</option><option>Room Deep Cleaning</option><option>Maintenance</option><option>Developer Pipeline</option><option>Reception</option><option>Other</option></select></div>
+    <button class="primary" type="submit">Create Account</button>
+    <div id="teamCreateStatus" class="ai-note" style="margin-top:10px"></div>
+   </form>
+  </div>
+  <div class="panel"><h3>Team Members</h3><div id="teamList" class="team-list"><div class="muted">Sign in as an administrator to load the team.</div></div></div>
+ </div>
+</section>
+</main></div>
+<div class="modal" id="taskModal"><div class="dialog"><div class="dialoghead"><h2 id="formTitle">New Task</h2><button class="x" data-close="taskModal">×</button></div><form id="taskForm"><input type="hidden" id="taskId"><div class="grid">
+<div class="field span2"><label>Task</label><input id="taskTitle" required placeholder="What needs to be done?"></div><div class="field"><label>Property / Area</label><input id="taskProperty" placeholder="e.g. Allen"></div><div class="field"><label>Workstream</label><select id="taskCategory"><option>Bathroom Cleaning</option><option>Room Deep Cleaning</option><option>Maintenance</option><option>Developer Pipeline</option><option>Reception</option><option>Other</option></select></div><div class="field"><label>Assigned To</label><select id="taskAssignee"></select></div><div class="field"><label>Priority</label><select id="taskPriority"><option>Medium</option><option>High</option><option>Low</option></select></div><div class="field"><label>Status</label><select id="taskStatus"><option>New Task</option><option>In Progress</option><option>Final Confirmation</option><option>Finished</option></select></div><div class="field"><label>Deadline</label><input type="datetime-local" id="taskDeadline"></div><div class="field span2"><label>Description / Initial Instruction</label><textarea id="taskDescription"></textarea></div></div><div class="actions"><button type="button" class="btn" data-close="taskModal">Cancel</button><button class="btn primary">Save Task</button></div></form></div></div>
+<div class="modal" id="detailModal"><div class="dialog wide"><div class="dialoghead"><h2 id="detailTitle"></h2><button class="x" data-close="detailModal">×</button></div><div id="detailBody"></div></div></div>
+<script>
+const KEY='ops-dashboard-v1';
+const seed={team:['EJ','Reception','Maintenance','Cleaner'],tasks:[]};
+let db=load(); let activeTask=null;
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||structuredClone(seed)}catch{return structuredClone(seed)}}
+function save(){localStorage.setItem(KEY,JSON.stringify(db));renderAll()}
+const $=id=>document.getElementById(id); const now=()=>new Date().toISOString();
+const fmt=d=>d?new Date(d).toLocaleString([], {dateStyle:'medium',timeStyle:'short'}):'—';
+function esc(s=''){return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
+function user(){return $('currentUser').value||db.team[0]||'Unknown'}
+function renderUsers(){let cur=$('currentUser').value; let opts=db.team.map(n=>`<option>${esc(n)}</option>`).join(''); $('currentUser').innerHTML=opts;$('taskAssignee').innerHTML='<option value="">Unassigned</option>'+opts;$('assigneeFilter').innerHTML='<option value="">All assignees</option>'+opts;if(cur&&db.team.includes(cur))$('currentUser').value=cur;$('teamList').innerHTML=db.team.map((n,i)=>`<div class="teamrow"><span>${esc(n)}</span>${db.team.length>1?`<button class="btn danger" onclick="removeTeam(${i})">Remove</button>`:''}</div>`).join('')}
+
+const departments=['Bathroom Cleaning','Room Deep Cleaning','Maintenance','Developer Pipeline','Reception','Other'];
+function taskDepartment(t){return t.department||t.category||t.workstream||'Other'}
+function migrateTask(t){if(!t.department)t.department=taskDepartment(t);return t}
+(db.tasks||[]).forEach(migrateTask);
+function filters(t){let q=$('search').value.toLowerCase(),d=$('boardDepartment').value,p=$('propertyFilter').value,pr=$('priorityFilter').value,a=$('assigneeFilter').value;return(!q||[t.title,t.property,t.assignee,taskDepartment(t)].join(' ').toLowerCase().includes(q))&&(!d||taskDepartment(t)===d)&&(!p||t.property===p)&&(!pr||t.priority===pr)&&(!a||t.assignee===a)}
+let calendarDate=new Date();
+function calendarFiltered(t){let d=$('calendarDepartment')?.value||'';return !d||taskDepartment(t)===d}
+function renderAll(){renderUsers();let props=[...new Set(db.tasks.map(t=>t.property).filter(Boolean))].sort();let po='<option value="">All properties</option>'+props.map(p=>`<option>${esc(p)}</option>`).join('');let keep=$('propertyFilter').value;$('propertyFilter').innerHTML=po;if(props.includes(keep))$('propertyFilter').value=keep;$('reportProperty').innerHTML=po;renderCards();renderBoard();renderTable();renderCalendar()}
+function renderCards(){let today=new Date().toDateString(),scope=db.tasks.filter(filters),active=scope.filter(t=>t.status!=='Finished'),over=active.filter(t=>t.deadline&&new Date(t.deadline)<new Date());let vals=[['Active',active.length],['New',scope.filter(t=>t.status==='New Task').length],['In Progress',scope.filter(t=>t.status==='In Progress').length],['Final Confirmation',scope.filter(t=>t.status==='Final Confirmation').length],['Overdue',over.length],['Finished Today',scope.filter(t=>t.completedAt&&new Date(t.completedAt).toDateString()===today).length]];$('cards').innerHTML=vals.map(x=>`<div class="card"><div class="lab">${x[0]}</div><div class="n">${x[1]}</div></div>`).join('')}
+const statuses=['New Task','In Progress','Final Confirmation','Finished'];
+function latest(t){return t.updates?.at(-1)}
+function renderBoard(){let tasks=db.tasks.filter(filters);$('board').innerHTML=statuses.map(s=>{let list=tasks.filter(t=>t.status===s);return `<div class="col"><div class="colhead"><span>${s}</span><span class="count">${list.length}</span></div>${list.length?list.map(card).join(''):'<div class="empty">No tasks</div>'}</div>`}).join('')}
+function card(t){let l=latest(t),over=t.status!=='Finished'&&t.deadline&&new Date(t.deadline)<new Date();return `<div class="task" onclick="openDetail('${t.id}')"><h3>${esc(t.title)}</h3><div class="meta">${t.property?`<span class="pill">${esc(t.property)}</span>`:''}<span class="pill ${t.priority.toLowerCase()}">${t.priority}</span>${t.assignee?`<span class="pill">${esc(t.assignee)}</span>`:''}</div><div class="latest">${l?esc(l.text):esc(t.description||'No update yet')}</div><div class="deadline ${over?'overdue':''}">Deadline: ${fmt(t.deadline)}${over?' · OVERDUE':''}</div></div>`}
+function renderTable(){let d=$('allDepartment')?.value||'',rows=db.tasks.filter(t=>!d||taskDepartment(t)===d);$('taskRows').innerHTML=rows.length?rows.slice().reverse().map(t=>`<tr onclick="openDetail('${t.id}')" style="cursor:pointer"><td><b>${esc(t.title)}</b><br><small>${esc(t.property||'')}</small></td><td>${t.status}</td><td>${esc(t.assignee||'—')}</td><td>${fmt(t.actualStart)}</td><td>${fmt(t.deadline)}</td><td>${esc(latest(t)?.text||t.description||'—')}</td></tr>`).join(''):'<tr><td colspan="6" class="empty">No tasks yet.</td></tr>'}
+function openNew(){$('taskForm').reset();$('taskId').value='';$('formTitle').textContent='New Task';$('taskStatus').value='New Task';$('taskPriority').value='Medium';$('taskModal').classList.add('open')}
+function editTask(id){let t=db.tasks.find(x=>x.id===id);if(!t)return;$('taskId').value=id;$('taskTitle').value=t.title;$('taskProperty').value=t.property;if(t.category&&![...$('taskCategory').options].some(o=>o.value===t.category))$('taskCategory').add(new Option(t.category,t.category));$('taskCategory').value=taskDepartment(t)||'Other';$('taskAssignee').value=t.assignee;$('taskPriority').value=t.priority;$('taskStatus').value=t.status;$('taskDeadline').value=t.deadline?new Date(t.deadline).toISOString().slice(0,16):'';$('taskDescription').value=t.description;$('formTitle').textContent='Edit Task';$('detailModal').classList.remove('open');$('taskModal').classList.add('open')}
+$('taskForm').onsubmit=e=>{e.preventDefault();let id=$('taskId').value,t=id&&db.tasks.find(x=>x.id===id),oldStatus=t?.status;let data={title:$('taskTitle').value.trim(),property:$('taskProperty').value.trim(),department:$('taskCategory').value.trim(),category:$('taskCategory').value.trim(),assignee:$('taskAssignee').value,priority:$('taskPriority').value,status:$('taskStatus').value,deadline:$('taskDeadline').value?new Date($('taskDeadline').value).toISOString():null,description:$('taskDescription').value.trim()};if(t){Object.assign(t,data);if(oldStatus!==t.status)changeStatusTimes(t,oldStatus,t.status,true)}else{t={id:uid(),...data,createdAt:now(),createdBy:user(),actualStart:null,completedAt:null,updates:[]};if(t.description)t.updates.push({id:uid(),text:t.description,by:user(),at:now(),type:'Created'});changeStatusTimes(t,null,t.status,false);db.tasks.push(t)}save();$('taskModal').classList.remove('open')}
+function changeStatusTimes(t,oldS,newS,log){if(!t.actualStart&&['In Progress','Final Confirmation','Finished'].includes(newS))t.actualStart=now();if(newS==='Finished'&&!t.completedAt)t.completedAt=now();if(newS!=='Finished')t.completedAt=null;if(log)t.updates.push({id:uid(),text:`Status changed from ${oldS} to ${newS}.`,by:user(),at:now(),type:'Status'})}
+function openDetail(id){activeTask=id;let t=db.tasks.find(x=>x.id===id);if(!t)return;$('detailTitle').textContent=t.title;let timeline=(t.updates||[]).slice().reverse().map(u=>`<div class="event"><b>${esc(u.by)}</b><time>${fmt(u.at)}</time><p>${esc(u.text)}</p></div>`).join('')||'<div class="empty">No updates yet.</div>';$('detailBody').innerHTML=`<div class="detailgrid"><div><div class="updateform"><textarea id="newUpdate" placeholder="Add progress update…"></textarea><button class="btn primary" onclick="postUpdate()">Post Update</button></div><h3>Activity History</h3><div class="timeline">${timeline}</div></div><div class="sideinfo"><div><small>Status</small><b>${t.status}</b></div><div><small>Property / Area</small>${esc(t.property||'—')}</div><div><small>Department</small>${esc(taskDepartment(t)||'—')}</div><div><small>Assigned To</small>${esc(t.assignee||'Unassigned')}</div><div><small>Priority</small>${t.priority}</div><div><small>Created</small>${fmt(t.createdAt)} by ${esc(t.createdBy)}</div><div><small>Actual Work Started</small>${fmt(t.actualStart)}</div><div><small>Deadline</small>${fmt(t.deadline)}</div><div><small>Completed</small>${fmt(t.completedAt)}</div><div style="display:grid;gap:7px;margin-top:16px"><button class="btn" onclick="editTask('${t.id}')">Edit Task</button>${t.status!=='In Progress'&&t.status!=='Finished'?`<button class="btn" onclick="quickStatus('In Progress')">Start Work</button>`:''}${t.status==='In Progress'?`<button class="btn" onclick="quickStatus('Final Confirmation')">Send for Final Confirmation</button>`:''}${t.status==='Final Confirmation'?`<button class="btn primary" onclick="quickStatus('Finished')">Confirm & Finish</button>`:''}<button class="btn danger" onclick="deleteTask('${t.id}')">Delete Task</button></div></div></div>`;$('detailModal').classList.add('open')}
+function postUpdate(){let text=$('newUpdate').value.trim();if(!text)return;let t=db.tasks.find(x=>x.id===activeTask);t.updates.push({id:uid(),text,by:user(),at:now(),type:'Update'});save();openDetail(activeTask)}
+function quickStatus(s){let t=db.tasks.find(x=>x.id===activeTask),old=t.status;t.status=s;changeStatusTimes(t,old,s,true);save();openDetail(activeTask)}
+function deleteTask(id){if(confirm('Delete this task and its full update history?')){db.tasks=db.tasks.filter(t=>t.id!==id);save();$('detailModal').classList.remove('open')}}
+function removeTeam(i){if(confirm('Remove this team member? Existing task history will keep their name.')){db.team.splice(i,1);save()}}
+$('addTeam').onclick=()=>{let n=$('teamName').value.trim();if(n&&!db.team.includes(n)){db.team.push(n);$('teamName').value='';save()}}
+
+function sameDay(a,b){return a&&new Date(a).getFullYear()===b.getFullYear()&&new Date(a).getMonth()===b.getMonth()&&new Date(a).getDate()===b.getDate()}
+function renderCalendar(){if(!$('calendarGrid'))return;let y=calendarDate.getFullYear(),m=calendarDate.getMonth(),first=new Date(y,m,1),start=new Date(y,m,1-first.getDay()),today=new Date();$('calTitle').textContent=calendarDate.toLocaleString([],{month:'long',year:'numeric'});let html=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d=>`<div class="dow">${d}</div>`).join('');for(let i=0;i<42;i++){let d=new Date(start);d.setDate(start.getDate()+i);let events=db.tasks.filter(t=>t.deadline&&sameDay(t.deadline,d)&&calendarFiltered(t)).sort((a,b)=>new Date(a.deadline)-new Date(b.deadline));html+=`<div class="calday ${d.getMonth()!==m?'out':''} ${sameDay(d,today)?'today':''}"><div class="daynum">${d.getDate()}</div>${events.slice(0,4).map(t=>`<button class="calevent ${t.priority==='High'?'high':''} ${t.status==='Finished'?'finished':''}" onclick="openDetail('${t.id}')" title="${esc(t.title)}">${new Date(t.deadline).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})} · ${esc(t.title)}</button>`).join('')}${events.length>4?`<div class="notice">+${events.length-4} more</div>`:''}</div>`}$('calendarGrid').innerHTML=html;renderDaySchedule(today)}
+function renderDaySchedule(d){let tasks=db.tasks.filter(t=>t.deadline&&sameDay(t.deadline,d)&&calendarFiltered(t)).sort((a,b)=>new Date(a.deadline)-new Date(b.deadline));$('dayScheduleTitle').textContent="Today's Schedule";$('todaySchedule').innerHTML=tasks.length?tasks.map(t=>`<div class="todayitem" onclick="openDetail('${t.id}')"><div><b>${esc(t.title)}</b><div class="notice">${esc(t.property||'No property')} · ${esc(t.assignee||'Unassigned')} · ${t.status}</div></div><div><b>${new Date(t.deadline).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}</b></div></div>`).join(''):'<div class="empty">No tasks scheduled for today.</div>'}
+$('calendarDepartment').onchange=renderCalendar;$('allDepartment').onchange=renderTable;
+$('calPrev').onclick=()=>{calendarDate=new Date(calendarDate.getFullYear(),calendarDate.getMonth()-1,1);renderCalendar()};$('calNext').onclick=()=>{calendarDate=new Date(calendarDate.getFullYear(),calendarDate.getMonth()+1,1);renderCalendar()};$('calToday').onclick=()=>{calendarDate=new Date();renderCalendar()};
+
+$('newTaskBtn').onclick=openNew;document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>$(b.dataset.close).classList.remove('open'));document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));$(b.dataset.view).classList.add('active');let names={boardView:'Operations Dashboard',calendarView:'Calendar & Daily Schedule',allView:'All Tasks',reportsView:'Reports',teamView:'Team Members',backupView:'Backup & Restore'};$('pageTitle').textContent=names[b.dataset.view];$('newTaskBtn').style.display=['boardView','calendarView','allView'].includes(b.dataset.view)?'block':'none'});['search','boardDepartment','propertyFilter','priorityFilter','assigneeFilter'].forEach(id=>$(id).addEventListener(id==='search'?'input':'change',()=>{renderCards();renderBoard()}));
+$('exportBtn').onclick=()=>{let blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='operations-dashboard-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(a.href)};$('importBtn').onclick=()=>$('importFile').click();$('importFile').onchange=e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result);if(!Array.isArray(d.tasks)||!Array.isArray(d.team))throw 0;if(confirm('Replace current local data with this backup?')){db=d;save()}}catch{alert('Invalid Operations Dashboard backup file.')}};r.readAsText(f)};
+$('generateReport').onclick=()=>{let from=$('reportFrom').value?new Date($('reportFrom').value+'T00:00:00'):null,to=$('reportTo').value?new Date($('reportTo').value+'T23:59:59'):null,p=$('reportProperty').value,d=$('reportDepartment').value;let ts=db.tasks.filter(t=>(!p||t.property===p)&&(!d||taskDepartment(t)===d)&&(!from||new Date(t.createdAt)<=to)&&(!to||new Date(t.createdAt)>=from));let finished=ts.filter(t=>t.status==='Finished'),over=ts.filter(t=>t.status!=='Finished'&&t.deadline&&new Date(t.deadline)<new Date());let lines=[`${$('reportType').value.toUpperCase()}`,`Period: ${$('reportFrom').value||'All'} to ${$('reportTo').value||'Present'}${p?' | '+p:''}${d?' | '+d:''}`,'',`Total tasks: ${ts.length}`,`Finished: ${finished.length}`,`Currently active: ${ts.length-finished.length}`,`Overdue: ${over.length}`,'','OUTSTANDING WORK'];let active=ts.filter(t=>t.status!=='Finished');lines.push(...(active.length?active.map(t=>`• ${t.title} — ${t.status}${t.assignee?' — '+t.assignee:''}${latest(t)?' — Latest: '+latest(t).text:''}`):['None.']));lines.push('','COMPLETED WORK');lines.push(...(finished.length?finished.map(t=>`• ${t.title} — completed ${fmt(t.completedAt)}`):['None.']));lines.push('','AI MANAGEMENT SUMMARY','[Gemini AI summary will appear here after the secure Supabase Edge Function is connected.]');$('reportOut').textContent=lines.join('\n')};$('copyReport').onclick=()=>navigator.clipboard.writeText($('reportOut').textContent);$('generateAIReport').onclick=async()=>{
+ let factual=$('reportOut').textContent.trim();
+ if(!factual||factual.startsWith('Select a date')){alert('Generate the factual report first.');return}
+ if(!window.opsSupabase?.enabled){
+   $('aiStatus').textContent='Gemini is backend-ready. Complete Supabase Auth and deploy the generate-report Edge Function to activate it.';
+   $('aiStatus').className='ai-note'; return;
+ }
+ try{
+   $('aiStatus').textContent='Gemini is preparing the management report…'; $('generateAIReport').disabled=true;
+   const {data,error}=await window.opsSupabase.client.functions.invoke('generate-report',{body:{report:factual}});
+   if(error) throw error;
+   $('reportOut').textContent=factual.replace(/AI MANAGEMENT SUMMARY[\s\S]*$/,'AI MANAGEMENT SUMMARY\n'+(data?.report||'No AI report returned.'));
+   $('aiStatus').textContent='Gemini report generated securely through Supabase.'; $('aiStatus').className='ai-note ai-ready';
+ }catch(e){
+   $('aiStatus').textContent='Gemini report failed: '+(e?.message||e); $('aiStatus').className='ai-note';
+ }finally{$('generateAIReport').disabled=false}
+};
+
+renderAll();
+</script>
+
+<script>
+(function(){
+ const gate=document.getElementById('authGate'), form=document.getElementById('loginForm'), err=document.getElementById('loginError');
+ const sb=window.opsSupabase?.client;
+ let profile=null;
+ async function getProfile(user){
+   const {data,error}=await sb.from('profiles').select('id,display_name,email,role,department,is_active').eq('id',user.id).single();
+   if(error) throw error; return data;
+ }
+ function applyProfile(p){
+   profile=p; window.currentOpsProfile=p;
+   document.querySelectorAll('.team-admin-only').forEach(el=>el.style.display=p?.role==='admin'?'':'none');
+ }
+ async function boot(){
+   if(!sb){err.textContent='Supabase client is not configured.';return}
+   const {data:{session}}=await sb.auth.getSession();
+   if(!session){gate.style.display='flex';return}
+   try{
+     const p=await getProfile(session.user);
+     if(p.is_active===false){await sb.auth.signOut();throw new Error('Your account is inactive. Contact an administrator.')}
+     applyProfile(p); gate.style.display='none';
+   }catch(e){err.textContent=e.message||String(e);gate.style.display='flex'}
+ }
+ form?.addEventListener('submit',async e=>{
+   e.preventDefault();err.textContent='';
+   const {data,error}=await sb.auth.signInWithPassword({email:loginEmail.value.trim(),password:loginPassword.value});
+   if(error){err.textContent='Unable to sign in. Check your credentials.';return}
+   try{
+     const p=await getProfile(data.user);
+     if(p.is_active===false){await sb.auth.signOut();throw new Error('Your account is inactive. Contact an administrator.')}
+     applyProfile(p);gate.style.display='none';
+   }catch(x){err.textContent=x.message||String(x)}
+ });
+ async function loadTeam(){
+   if(profile?.role!=='admin')return;
+   const {data,error}=await sb.functions.invoke('admin-users',{body:{action:'list'}});
+   const box=document.getElementById('teamList');
+   if(error){box.innerHTML='<div class="muted">Unable to load team.</div>';return}
+   box.innerHTML=(data?.users||[]).map(u=>`<div class="team-person"><strong>${escapeHtml(u.display_name||u.email)}</strong><small>${escapeHtml(u.email||'')}</small><span class="role-pill">${escapeHtml(u.role||'team_member')}</span><small style="display:block;margin-top:5px">${escapeHtml(u.department||'No department')} · ${u.is_active===false?'Inactive':'Active'}</small></div>`).join('')||'<div class="muted">No team members yet.</div>';
+ }
+ function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+ document.getElementById('createTeamForm')?.addEventListener('submit',async e=>{
+   e.preventDefault(); if(profile?.role!=='admin')return;
+   const status=document.getElementById('teamCreateStatus'); status.textContent='Creating account…';
+   const {data,error}=await sb.functions.invoke('admin-users',{body:{action:'create',display_name:teamName.value.trim(),email:teamEmail.value.trim(),password:teamPassword.value,role:teamRole.value,department:teamDepartment.value}});
+   status.textContent=error?(error.message||'Unable to create account.'):'Account created successfully.';
+   if(!error){e.target.reset();loadTeam()}
+ });
+ document.addEventListener('click',e=>{if(e.target?.dataset?.view==='team')setTimeout(loadTeam,0)});
+ window.opsAuth={boot,loadTeam,get profile(){return profile}};
+ boot();
+})();
+</script>
+
+<script>
+(function(){
+ const sb=window.opsSupabase?.client;
+ let team=[];
+ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ async function loadRealTeam(){
+   if(!sb)return;
+   const {data,error}=await sb.from('profiles')
+     .select('id,display_name,email,role,department,is_active')
+     .eq('is_active',true)
+     .order('display_name');
+   if(error){console.error('Team load failed',error);return}
+   // Auth email is not stored in profiles in V7. Admin list function can supply it.
+   let emails=new Map();
+   if(window.currentOpsProfile?.role==='admin'){
+     const r=await sb.functions.invoke('admin-users',{body:{action:'list'}});
+     if(!r.error) (r.data?.users||[]).forEach(u=>emails.set(u.id,u.email||''));
+   }
+   team=(data||[]).map(x=>({...x,email:emails.get(x.id)||''}));
+   window.opsRealTeam=team;
+   renderAssignees();
+ }
+ function renderAssignees(){
+   const sel=document.getElementById('assignee'); if(!sel)return;
+   const current=sel.value;
+   sel.innerHTML='<option value="">Unassigned</option>'+team.map(u=>{
+     const label=u.display_name+(u.email?' — '+u.email:'');
+     return `<option value="${esc(u.id)}">${esc(label)}</option>`;
+   }).join('');
+   if([...sel.options].some(o=>o.value===current))sel.value=current;
+ }
+ // Remove obsolete browser identity control if older markup survived.
+ function removeManualPoster(){
+   document.querySelectorAll('label,small,.label').forEach(el=>{
+     if(/updates posted as/i.test(el.textContent||'')){
+       const box=el.closest('.field,.form-group,.user-switch,div');
+       if(box)box.remove();
+     }
+   });
+ }
+ // Make authenticated identity available to task/update code.
+ window.opsIdentity={
+   get userId(){return window.currentOpsProfile?.id||null},
+   get displayName(){return window.currentOpsProfile?.display_name||''},
+   get profile(){return window.currentOpsProfile||null},
+   refreshTeam:loadRealTeam
+ };
+ const wait=setInterval(()=>{
+   if(window.currentOpsProfile){clearInterval(wait);removeManualPoster();loadRealTeam()}
+ },150);
+ document.addEventListener('click',e=>{
+   if(e.target?.dataset?.view==='team')setTimeout(loadRealTeam,300);
+ });
+})();
+</script>
+</body></html>
