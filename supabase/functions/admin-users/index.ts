@@ -1,31 +1,235 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
-const cors={"Access-Control-Allow-Origin":"*","Access-Control-Allow-Headers":"authorization, x-client-info, apikey, content-type","Access-Control-Allow-Methods":"POST, OPTIONS"};
-const json=(x:any,status=200)=>new Response(JSON.stringify(x),{status,headers:{...cors,"Content-Type":"application/json"}});
-Deno.serve(async(req)=>{
- if(req.method==="OPTIONS")return new Response("ok",{headers:cors});
- if(req.method!=="POST")return json({error:"Method not allowed"},405);
- try{
-  const url=Deno.env.get("SUPABASE_URL")!,anon=Deno.env.get("SUPABASE_ANON_KEY")!,service=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-  const token=req.headers.get("Authorization")||"";
-  const caller=createClient(url,anon,{global:{headers:{Authorization:token}}});
-  const {data:{user},error:ue}=await caller.auth.getUser();if(ue||!user)return json({error:"Unauthorized"},401);
-  const admin=createClient(url,service);
-  const {data:p}=await admin.from("profiles").select("role,is_active").eq("id",user.id).single();
-  if(p?.role!=="admin"||p?.is_active!==true)return json({error:"Admin access required"},403);
-  const b=await req.json();
-  if(b.action==="create"){
-   if(!b.display_name||!b.email||!b.password)return json({error:"Name, email and password are required"},400);
-   if(!["admin","manager","team_member"].includes(b.role))return json({error:"Invalid role"},400);
-   const {data,error}=await admin.auth.admin.createUser({email:b.email,password:b.password,email_confirm:true,user_metadata:{display_name:b.display_name}});
-   if(error)return json({error:error.message},400);
-   const {error:pe}=await admin.from("profiles").update({display_name:b.display_name,email:b.email,role:b.role,department:b.department||null,is_active:true}).eq("id",data.user.id);
-   if(pe)return json({error:pe.message},400); return json({ok:true,id:data.user.id});
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+};
+
+const json = (data: any, status = 200) =>
+  new Response(JSON.stringify(data), {
+    status,
+    headers: {
+      ...corsHeaders,
+      "Content-Type": "application/json",
+    },
+  });
+
+Deno.serve(async (req) => {
+
+  // REQUIRED FOR GITHUB → SUPABASE CORS
+  if (req.method === "OPTIONS") {
+    return new Response("ok", {
+      headers: corsHeaders,
+    });
   }
-  if(b.action==="set_active"){
-   if(!b.user_id||b.user_id===user.id)return json({error:"Invalid user"},400);
-   const {error}=await admin.from("profiles").update({is_active:!!b.is_active}).eq("id",b.user_id);
-   if(error)return json({error:error.message},400);return json({ok:true});
+
+  if (req.method !== "POST") {
+    return json(
+      { error: "Method not allowed" },
+      405
+    );
   }
-  return json({error:"Unsupported action"},400);
- }catch(e){return json({error:e?.message||String(e)},500)}
+
+  try {
+
+    const supabaseUrl =
+      Deno.env.get("SUPABASE_URL")!;
+
+    const anonKey =
+      Deno.env.get("SUPABASE_ANON_KEY")!;
+
+    const serviceRoleKey =
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
+    const authorization =
+      req.headers.get("Authorization") || "";
+
+    const caller = createClient(
+      supabaseUrl,
+      anonKey,
+      {
+        global: {
+          headers: {
+            Authorization: authorization,
+          },
+        },
+      }
+    );
+
+    const {
+      data: { user },
+      error: userError,
+    } = await caller.auth.getUser();
+
+    if (userError || !user) {
+      return json(
+        { error: "Unauthorized" },
+        401
+      );
+    }
+
+    const admin = createClient(
+      supabaseUrl,
+      serviceRoleKey
+    );
+
+    const { data: profile } =
+      await admin
+        .from("profiles")
+        .select("role,is_active")
+        .eq("id", user.id)
+        .single();
+
+    if (
+      profile?.role !== "admin" ||
+      profile?.is_active !== true
+    ) {
+      return json(
+        { error: "Admin access required" },
+        403
+      );
+    }
+
+    const body = await req.json();
+
+    // ============================================
+    // CREATE TEAM MEMBER
+    // ============================================
+
+    if (body.action === "create") {
+
+      if (
+        !body.display_name ||
+        !body.email ||
+        !body.password
+      ) {
+        return json(
+          {
+            error:
+              "Name, email and password are required",
+          },
+          400
+        );
+      }
+
+      const allowedRoles = [
+        "admin",
+        "manager",
+        "team_member",
+      ];
+
+      if (!allowedRoles.includes(body.role)) {
+        return json(
+          { error: "Invalid role" },
+          400
+        );
+      }
+
+      const {
+        data,
+        error,
+      } = await admin.auth.admin.createUser({
+        email: body.email,
+        password: body.password,
+
+        // Allows them to log in immediately
+        email_confirm: true,
+
+        user_metadata: {
+          display_name: body.display_name,
+        },
+      });
+
+      if (error) {
+        return json(
+          { error: error.message },
+          400
+        );
+      }
+
+      // Profile was automatically created by our
+      // auth trigger. Update it with team details.
+
+      const { error: profileError } =
+        await admin
+          .from("profiles")
+          .update({
+            display_name: body.display_name,
+            email: body.email,
+            role: body.role,
+            department:
+              body.department || null,
+            is_active: true,
+          })
+          .eq("id", data.user.id);
+
+      if (profileError) {
+        return json(
+          { error: profileError.message },
+          400
+        );
+      }
+
+      return json({
+        ok: true,
+        user_id: data.user.id,
+      });
+    }
+
+    // ============================================
+    // ACTIVATE / DEACTIVATE TEAM MEMBER
+    // ============================================
+
+    if (body.action === "set_active") {
+
+      if (
+        !body.user_id ||
+        body.user_id === user.id
+      ) {
+        return json(
+          { error: "Invalid user" },
+          400
+        );
+      }
+
+      const { error } =
+        await admin
+          .from("profiles")
+          .update({
+            is_active:
+              Boolean(body.is_active),
+          })
+          .eq("id", body.user_id);
+
+      if (error) {
+        return json(
+          { error: error.message },
+          400
+        );
+      }
+
+      return json({
+        ok: true,
+      });
+    }
+
+    return json(
+      { error: "Unsupported action" },
+      400
+    );
+
+  } catch (error) {
+
+    return json(
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : String(error),
+      },
+      500
+    );
+  }
 });
